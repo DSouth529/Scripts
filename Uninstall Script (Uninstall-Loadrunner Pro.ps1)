@@ -1,0 +1,82 @@
+# ===============================================
+# LoadRunner Professional Client Components
+# Uninstall Script
+# Version: 1.0.0
+# ===============================================
+
+$ScriptVersion = "1.0.0"
+
+# Required Variables
+$AppName       = "LoadRunner Professional Client Components"
+$SourceApp     = ""
+$InstallerType = "MSI"
+$ArgumentList  = "/qn REBOOT=ReallySuppress /norestart"
+
+$LogPath = "C:\ProgramData\AppLogs"
+$LogFile = Join-Path $LogPath "$($AppName.Replace(' ','_'))_Uninstall.log"
+
+If (!(Test-Path $LogPath)) {
+    New-Item -Path $LogPath -ItemType Directory -Force | Out-Null
+}
+
+Function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $Context = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+    "$TimeStamp [$Level] Version=$ScriptVersion Installer=N/A Context=$Context $Message" |
+        Out-File -FilePath $LogFile -Append -Encoding utf8
+}
+
+Write-Log "Uninstall script started"
+
+Try {
+
+    $App = Get-ItemProperty `
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" `
+        -ErrorAction SilentlyContinue |
+        Where-Object { $_.DisplayName -like "*LoadRunner*" } |
+        Select-Object -First 1
+
+    If (!$App) {
+        Write-Log "Application not found. Nothing to uninstall." "WARN"
+        Exit 0
+    }
+
+    $ProductCode = $App.PSChildName
+
+    Write-Log "Found installed product code $ProductCode"
+
+    $Arguments = "/x $ProductCode $ArgumentList"
+
+    $Process = Start-Process `
+        -FilePath "msiexec.exe" `
+        -ArgumentList $Arguments `
+        -Wait `
+        -PassThru `
+        -WindowStyle Hidden
+
+    $ExitCode = $Process.ExitCode
+
+    Write-Log "Uninstall completed ExitCode=$ExitCode"
+
+    If ($ExitCode -eq 0) {
+        Write-Log "Uninstall successful" "SUCCESS"
+    }
+    Else {
+        Write-Log "Uninstall failed ExitCode=$ExitCode" "ERROR"
+        Exit $ExitCode
+    }
+
+}
+Catch {
+    Write-Log $_.Exception.Message "ERROR"
+    Exit 1
+}
+
+Write-Log "Uninstall script ended"
+Exit 0
