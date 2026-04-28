@@ -1,0 +1,39 @@
+#====================================================
+# Detection Script for Anaconda Python
+# Version: 1.0.0
+# Exit 0 = Detected
+# Exit 1 = Not Detected
+#====================================================
+
+$ScriptVersion = "1.0.0"
+
+$AppName = "Anaconda Python"
+$LogPath = "C:\ProgramData\Logs\$($AppName.Replace(' ','_'))_Detect.log"
+
+function Write-Log {
+    param(
+        [string]$Message,
+        [ValidateSet("INFO","WARN","ERROR","SUCCESS")]
+        [string]$Level = "INFO"
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    "$TimeStamp [$Level] $Message" | Out-File -FilePath $LogPath -Append -Encoding UTF8
+}
+
+Write-Log "========== DETECTION START =========="
+Write-Log "Script Version: $ScriptVersion"
+Write-Log "Run Context: $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)"
+
+$InstallPath = "C:\ProgramData\Anaconda3\python.exe"
+
+if (Test-Path $InstallPath) {
+    Write-Log "Detection successful. python.exe exists." "SUCCESS"
+    Write-Log "========== DETECTION END =========="
+    exit 0
+}
+else {
+    Write-Log "Detection failed. python.exe not found." "WARN"
+    Write-Log "========== DETECTION END =========="
+    exit 1
+}
