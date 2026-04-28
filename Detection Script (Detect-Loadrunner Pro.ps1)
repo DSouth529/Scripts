@@ -1,0 +1,50 @@
+# ===============================================
+# LoadRunner Professional Client Components
+# Detection Script
+# Version: 1.0.0
+# ===============================================
+
+$ScriptVersion = "1.0.0"
+
+$AppName       = "LoadRunner Professional Client Components"
+$SourceApp     = ""
+$InstallerType = ""
+$ArgumentList  = ""
+
+$LogPath = "C:\ProgramData\AppLogs"
+$LogFile = Join-Path $LogPath "$($AppName.Replace(' ','_'))_Detection.log"
+
+If (!(Test-Path $LogPath)) {
+    New-Item -Path $LogPath -ItemType Directory -Force | Out-Null
+}
+
+Function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $Context = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+    "$TimeStamp [$Level] Version=$ScriptVersion Installer=N/A Context=$Context $Message" |
+        Out-File -FilePath $LogFile -Append -Encoding utf8
+}
+
+Write-Log "Detection started"
+
+$App = Get-ItemProperty `
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" `
+    -ErrorAction SilentlyContinue |
+    Where-Object { $_.DisplayName -like "*LoadRunner*" } |
+    Select-Object -First 1
+
+If ($App) {
+    Write-Log "Application detected: $($App.DisplayName)" "SUCCESS"
+    Write-Output "Detected"
+    Exit 0
+}
+Else {
+    Write-Log "Application not detected" "WARN"
+    Exit 1
+}
