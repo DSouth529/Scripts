@@ -1,0 +1,53 @@
+## Uninstall Script (PowerShell)
+
+```powershell
+$ScriptVersion = '1.0.0'
+$AppName = 'TortoiseGit'
+$SourceApp = 'TortoiseGit'
+$InstallerType = 'MSI'
+$LogFile = Join-Path $env:ProgramData "$AppName-uninstall.log"
+
+function Write-Log {
+    param([string]$Level,[string]$Message)
+    Add-Content -Path $LogFile -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [$Level] $Message"
+}
+
+$RunContext = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+Write-Log INFO "Version=$ScriptVersion"
+Write-Log INFO "InstallerPath=Registry Lookup"
+Write-Log INFO "RunContext=$RunContext"
+
+$RegPaths = @(
+ 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+ 'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+$App = Get-ItemProperty $RegPaths | Where-Object { $_.DisplayName -like 'TortoiseGit*' } | Select-Object -First 1
+if (!$App) {
+    Write-Log WARN "Application not detected. Nothing to uninstall."
+    exit 0
+}
+
+$ProductCode = $App.PSChildName
+$ArgumentList = "/x $ProductCode /qn /norestart"
+$process = Start-Process msiexec.exe -ArgumentList $ArgumentList -Wait -PassThru -WindowStyle Hidden
+$ExitCode = $process.ExitCode
+Write-Log INFO "ExitCode=$ExitCode"
+
+if ($ExitCode -eq 0) {
+    Write-Log SUCCESS "Uninstall completed successfully."
+} elseif ($ExitCode -eq 3010) {
+    Write-Log SUCCESS "Uninstall completed. Restart suppressed."
+} else {
+    Write-Log ERROR "Uninstall failed."
+    exit $ExitCode
+}
+
+# Post uninstall check
+$StillPresent = Get-ItemProperty $RegPaths | Where-Object { $_.DisplayName -like 'TortoiseGit*' }
+if (!$StillPresent) {
+    Write-Log SUCCESS "PostUninstall: Application removed."
+} else {
+    Write-Log WARN "PostUninstall: Application still detected."
+}
+exit 0
+```
