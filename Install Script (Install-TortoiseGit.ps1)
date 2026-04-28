@@ -1,0 +1,53 @@
+# TortoiseGit for Windows (64-bit) Application Package Scripts
+
+## Install Script (PowerShell)
+
+```powershell
+$ScriptVersion = '1.0.0'
+$AppName = 'TortoiseGit'
+$SourceApp = 'TortoiseGit-64bit.msi'
+$InstallerType = 'MSI'
+$ArgumentList = '/i `"$PSScriptRoot\\$SourceApp`" /qn /norestart'
+$LogFile = Join-Path $env:ProgramData "$AppName-install.log"
+
+function Write-Log {
+    param([string]$Level,[string]$Message)
+    Add-Content -Path $LogFile -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [$Level] $Message"
+}
+
+$InstallerPath = Join-Path $PSScriptRoot $SourceApp
+$RunContext = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+Write-Log INFO "Version=$ScriptVersion"
+Write-Log INFO "InstallerPath=$InstallerPath"
+Write-Log INFO "RunContext=$RunContext"
+
+if (!(Test-Path $InstallerPath)) {
+    Write-Log ERROR "Installer not found."
+    exit 1
+}
+
+$process = Start-Process msiexec.exe -ArgumentList $ArgumentList -Wait -PassThru -WindowStyle Hidden
+$ExitCode = $process.ExitCode
+Write-Log INFO "ExitCode=$ExitCode"
+
+if ($ExitCode -eq 0) {
+    Write-Log SUCCESS "Installation completed successfully."
+} elseif ($ExitCode -eq 3010) {
+    Write-Log SUCCESS "Installation completed. Restart suppressed."
+} else {
+    Write-Log ERROR "Installation failed."
+    exit $ExitCode
+}
+
+# Post install steps
+$ExePath = 'C:\Program Files\TortoiseGit\bin\TortoiseGitProc.exe'
+if (Test-Path $ExePath) {
+    Write-Log SUCCESS "PostInstall: Main executable detected."
+} else {
+    Write-Log WARN "PostInstall: Main executable not found."
+}
+exit 0
+```
+
+
+
