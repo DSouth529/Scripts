@@ -1,0 +1,35 @@
+## Detection Script (PowerShell)
+
+```powershell
+$ScriptVersion = '1.0.0'
+$AppName = 'TortoiseGit'
+$SourceApp = 'TortoiseGit-64bit.msi'
+$InstallerType = 'MSI'
+$ArgumentList = ''
+$LogFile = Join-Path $env:ProgramData "$AppName-detection.log"
+
+function Write-Log {
+    param([string]$Level,[string]$Message)
+    Add-Content -Path $LogFile -Value "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [$Level] $Message"
+}
+
+$RunContext = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+Write-Log INFO "Version=$ScriptVersion"
+Write-Log INFO "InstallerPath=N/A"
+Write-Log INFO "RunContext=$RunContext"
+
+$RegPaths = @(
+ 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+ 'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+$App = Get-ItemProperty $RegPaths | Where-Object { $_.DisplayName -like 'TortoiseGit*' } | Select-Object -First 1
+
+if ($App) {
+    Write-Log SUCCESS "Detected $($App.DisplayName) Version=$($App.DisplayVersion)"
+    Write-Output 'Installed'
+    exit 0
+} else {
+    Write-Log WARN "Application not detected."
+    exit 1
+}
+```
