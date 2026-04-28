@@ -1,0 +1,93 @@
+#====================================================
+# Uninstall Script for Anaconda Python
+# Version: 1.0.0
+#====================================================
+
+$ScriptVersion = "1.0.0"
+
+$AppName       = "Anaconda Python"
+$LogPath       = "C:\ProgramData\Logs\$($AppName.Replace(' ','_'))_Uninstall.log"
+
+#----------------------------------------------------
+# Logging Function
+#----------------------------------------------------
+function Write-Log {
+    param(
+        [string]$Message,
+        [ValidateSet("INFO","WARN","ERROR","SUCCESS")]
+        [string]$Level = "INFO"
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    "$TimeStamp [$Level] $Message" | Out-File -FilePath $LogPath -Append -Encoding UTF8
+}
+
+Write-Log "========== UNINSTALL START =========="
+Write-Log "Script Version: $ScriptVersion"
+Write-Log "Run Context: $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)"
+
+#----------------------------------------------------
+# Find Uninstall String
+#----------------------------------------------------
+$RegPaths = @(
+"HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+"HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+)
+
+$UninstallString = $null
+
+foreach ($Path in $RegPaths) {
+    $Apps = Get-ChildItem $Path -ErrorAction SilentlyContinue
+    foreach ($App in $Apps) {
+        $Props = Get-ItemProperty $App.PSPath -ErrorAction SilentlyContinue
+        if ($Props.DisplayName -like "*Anaconda*") {
+            $UninstallString = $Props.UninstallString
+            break
+        }
+    }
+}
+
+if (!$UninstallString) {
+    Write-Log "No uninstall string found." "WARN"
+    exit 0
+}
+
+Write-Log "Uninstall String: $UninstallString"
+
+#----------------------------------------------------
+# Silent Uninstall
+#----------------------------------------------------
+try {
+    if ($UninstallString -match "uninstall.exe") {
+        $Exe = $UninstallString.Replace('"','')
+        $Args = "/S"
+    }
+    else {
+        $Exe = "cmd.exe"
+        $Args = "/c $UninstallString /quiet /norestart"
+    }
+
+    $Process = Start-Process -FilePath $Exe `
+        -ArgumentList $Args `
+        -Wait `
+        -PassThru `
+        -WindowStyle Hidden
+
+    $ExitCode = $Process.ExitCode
+    Write-Log "Uninstaller exit code: $ExitCode"
+
+    if ($ExitCode -eq 0) {
+        Write-Log "Uninstall completed successfully." "SUCCESS"
+    }
+    else {
+        Write-Log "Uninstall completed with errors." "ERROR"
+        exit $ExitCode
+    }
+}
+catch {
+    Write-Log "Exception during uninstall: $_" "ERROR"
+    exit 1
+}
+
+Write-Log "========== UNINSTALL END =========="
+exit 0
