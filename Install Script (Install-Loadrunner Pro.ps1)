@@ -1,0 +1,89 @@
+# ===============================================
+# LoadRunner Professional Client Components
+# Install Script
+# Version: 1.0.0
+# ===============================================
+
+$ScriptVersion = "1.0.0"
+
+# Required Variables
+$AppName       = "LoadRunner Professional Client Components"
+$SourceApp     = "LoadRunner_Professional_Client_Components.exe"
+$InstallerType = "EXE"
+$ArgumentList  = "/s /v`"/qn REBOOT=ReallySuppress /norestart`""
+
+# Paths
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$InstallerPath = Join-Path $ScriptRoot $SourceApp
+$LogPath = "C:\ProgramData\AppLogs"
+$LogFile = Join-Path $LogPath "$($AppName.Replace(' ','_'))_Install.log"
+
+# Create log folder
+If (!(Test-Path $LogPath)) {
+    New-Item -Path $LogPath -ItemType Directory -Force | Out-Null
+}
+
+# Logging Function
+Function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $Context = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+    "$TimeStamp [$Level] Version=$ScriptVersion Installer=$InstallerPath Context=$Context $Message" |
+        Out-File -FilePath $LogFile -Append -Encoding utf8
+}
+
+Write-Log "Install script started"
+
+# Validate installer exists
+If (!(Test-Path $InstallerPath)) {
+    Write-Log "Installer not found" "ERROR"
+    Exit 1
+}
+
+Try {
+    Write-Log "Launching installer"
+
+    $Process = Start-Process -FilePath $InstallerPath `
+        -ArgumentList $ArgumentList `
+        -Wait `
+        -PassThru `
+        -WindowStyle Hidden
+
+    $ExitCode = $Process.ExitCode
+
+    Write-Log "Installer completed ExitCode=$ExitCode"
+
+    If ($ExitCode -eq 0) {
+        Write-Log "Install completed successfully" "SUCCESS"
+    }
+    Else {
+        Write-Log "Install failed ExitCode=$ExitCode" "ERROR"
+        Exit $ExitCode
+    }
+
+    # Post Install Validation
+    $UninstallKey = Get-ItemProperty `
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" `
+        -ErrorAction SilentlyContinue |
+        Where-Object { $_.DisplayName -like "*LoadRunner*" }
+
+    If ($UninstallKey) {
+        Write-Log "Post check: Application detected in registry" "SUCCESS"
+    }
+    Else {
+        Write-Log "Post check: Application NOT found after install" "WARN"
+    }
+
+}
+Catch {
+    Write-Log $_.Exception.Message "ERROR"
+    Exit 1
+}
+
+Write-Log "Install script ended"
+Exit 0
