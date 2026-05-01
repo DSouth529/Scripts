@@ -3,8 +3,8 @@
 # Version: 1.0.0
 #====================================================
 
+#Required Variables
 $ScriptVersion = "1.0.0"
-
 $AppName       = "Anaconda Python"
 $LogPath       = "C:\ProgramData\Logs\$($AppName.Replace(' ','_'))_Uninstall.log"
 
