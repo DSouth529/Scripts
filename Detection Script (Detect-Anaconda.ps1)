@@ -5,8 +5,8 @@
 # Exit 1 = Not Detected
 #====================================================
 
+#Required Variables
 $ScriptVersion = "1.0.0"
-
 $AppName = "Anaconda Python"
 $LogPath = "C:\ProgramData\Logs\$($AppName.Replace(' ','_'))_Detect.log"
 
