@@ -1,6 +1,12 @@
+#====================================================
+# Detection Script for TortoiseGit
+# Version: 1.0.0
+#====================================================
+
 ## Detection Script (PowerShell)
 
 ```powershell
+#Required Variables
 $ScriptVersion = '1.0.0'
 $AppName = 'TortoiseGit'
 $SourceApp = 'TortoiseGit-64bit.msi'
