@@ -1,6 +1,9 @@
-## Uninstall Script (PowerShell)
+#====================================================
+# Uninstall Script for TortoiseGit
+# Version: 1.0.0
+#====================================================
 
-```powershell
+#Required Variables
 $ScriptVersion = '1.0.0'
 $AppName = 'TortoiseGit'
 $SourceApp = 'TortoiseGit'
@@ -50,4 +53,4 @@ if (!$StillPresent) {
     Write-Log WARN "PostUninstall: Application still detected."
 }
 exit 0
-```
+
