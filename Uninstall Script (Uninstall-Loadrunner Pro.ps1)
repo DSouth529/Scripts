@@ -4,9 +4,9 @@
 # Version: 1.0.0
 # ===============================================
 
-$ScriptVersion = "1.0.0"
 
 # Required Variables
+$ScriptVersion = "1.0.0"
 $AppName       = "LoadRunner Professional Client Components"
 $SourceApp     = ""
 $InstallerType = "MSI"
