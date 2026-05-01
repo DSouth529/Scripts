@@ -1,0 +1,18 @@
+**Source Folder Structure**
+
+C:\Kurzweil-Package
+│
+├── Source
+│   ├── Install-Kurzweil.ps1
+│   ├── Uninstall-Kurzweil.ps1
+│   ├── Detect-Kurzweil.ps1
+│
+├── Installer
+│   ├── KurzweilSetup.exe
+│
+└── Output
+
+**IntuneWin Packaging Command**
+
+IntuneWinAppUtil.exe -c "C:\Kurzweil-Package\Source" -s "Install-Kurzweil.ps1" -o "C:\Kurzweil-Package\Output"
+
