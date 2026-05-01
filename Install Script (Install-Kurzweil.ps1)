@@ -3,6 +3,7 @@
 # Version 1.0.0
 # ==================================================
 
+#Required Variables
 $AppName = "Kurzweil"
 $SourceApp = "KurzweilInstaller"
 $InstallerType = "EXE"   # or MSI
