@@ -1,0 +1,64 @@
+# ==================================================
+# Kurzweil Uninstall Script
+# ==================================================
+
+$AppName = "Kurzweil"
+$SourceApp = "KurzweilInstaller"
+$InstallerType = "MSI"
+$ArgumentList = "/quiet /norestart"
+$InstallPath = "C:\Program Files\Kurzweil"
+
+$ScriptVersion = "1.0.0"
+$UninstallerPath = "C:\Program Files\Kurzweil\uninstall.exe"
+$LogPath = "C:\ProgramData\$AppName\Logs"
+$LogFile = "$LogPath\Uninstall.log"
+
+New-Item -Path $LogPath -ItemType Directory -Force | Out-Null
+
+function Write-Log {
+    param (
+        [string]$Message,
+        [string]$Severity = "INFO"
+    )
+    $Timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    Add-Content -Path $LogFile -Value "$Timestamp [$Severity] $Message"
+}
+
+Write-Log "Starting uninstall script version $ScriptVersion" "INFO"
+Write-Log "Uninstaller path: $UninstallerPath" "INFO"
+Write-Log "Run context: $env:USERNAME" "INFO"
+
+try {
+    if (!(Test-Path $UninstallerPath)) {
+        Write-Log "Uninstaller not found" "WARN"
+    }
+    else {
+        $process = Start-Process -FilePath $UninstallerPath `
+            -ArgumentList $ArgumentList `
+            -Wait -PassThru
+
+        $exitCode = $process.ExitCode
+        Write-Log "Uninstaller exit code: $exitCode" "INFO"
+
+        if ($exitCode -eq 0) {
+            Write-Log "Uninstallation completed successfully" "SUCCESS"
+        }
+        else {
+            Write-Log "Uninstallation failed with exit code $exitCode" "ERROR"
+        }
+    }
+
+    # Cleanup check
+    if (!(Test-Path $InstallPath)) {
+        Write-Log "Application folder removed successfully" "SUCCESS"
+    }
+    else {
+        Write-Log "Application folder still exists after uninstall" "WARN"
+    }
+}
+catch {
+    Write-Log "Unhandled error: $_" "ERROR"
+    exit 1
+}
+
+exit 0
