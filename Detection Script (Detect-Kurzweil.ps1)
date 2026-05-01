@@ -1,0 +1,59 @@
+# ==================================================
+# Kurzweil Detection Script
+# ==================================================
+
+$AppName = "Kurzweil"
+$InstallPath = "C:\Program Files\Kurzweil"
+$RegistryPath = "HKLM:\Software\Kurzweil"
+
+$LogPath = "C:\ProgramData\$AppName\Logs"
+$LogFile = "$LogPath\Detection.log"
+
+New-Item -Path $LogPath -ItemType Directory -Force | Out-Null
+
+function Write-Log {
+    param (
+        [string]$Message,
+        [string]$Severity = "INFO"
+    )
+    $Timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    Add-Content -Path $LogFile -Value "$Timestamp [$Severity] $Message"
+}
+
+Write-Log "Starting detection script" "INFO"
+Write-Log "Checking install path: $InstallPath" "INFO"
+
+try {
+
+    $installed = $false
+
+    if (Test-Path $InstallPath) {
+        Write-Log "Install directory found" "SUCCESS"
+        $installed = $true
+    }
+    else {
+        Write-Log "Install directory not found" "WARN"
+    }
+
+    if (Test-Path $RegistryPath) {
+        Write-Log "Registry key found" "SUCCESS"
+        $installed = $true
+    }
+    else {
+        Write-Log "Registry key not found" "WARN"
+    }
+
+    if ($installed) {
+        Write-Log "Detection result: Installed" "SUCCESS"
+        exit 0
+    }
+    else {
+        Write-Log "Detection result: Not Installed" "INFO"
+        exit 1
+    }
+
+}
+catch {
+    Write-Log "Detection error: $_" "ERROR"
+    exit 1
+}
