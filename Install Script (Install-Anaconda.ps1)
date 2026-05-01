@@ -3,9 +3,9 @@
 # Version: 1.0.0
 #====================================================
 
-$ScriptVersion = "1.0.0"
 
 # Required Variables
+$ScriptVersion = "1.0.0"
 $AppName       = "Anaconda Python"
 $SourceApp     = "Anaconda3-2024.02-1-Windows-x86_64.exe"
 $InstallerType = "EXE"
