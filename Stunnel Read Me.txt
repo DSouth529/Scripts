@@ -1,0 +1,15 @@
+**Source Folder Structure**
+
+Stunnel_Package/
+│
+├── Install-Stunnel.ps1
+├── Uninstall-Stunnel.ps1
+├── Detect-Stunnel.ps1
+│
+├── Source/
+│   ├── stunnel.msi   (or stunnel.exe depending on source)
+│
+└── Logs/
+    ├── Install.log
+    ├── Uninstall.log
+    ├── Detect.log
