@@ -1,0 +1,7 @@
+Anaconda\
+│── Install-Anaconda.ps1
+│── Uninstall-Anaconda.ps1
+│── Detect-Anaconda.ps1
+│── Files\
+│     └── Anaconda3-2026.04-Windows-x86_64.exe
+│── Logs\

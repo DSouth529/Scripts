@@ -1,0 +1,36 @@
+**Source Folder Structure**
+
+TortoiseGit\
+│
+├── Files\
+│   └── TortoiseGit-64bit.msi
+│
+├── Install-TortoiseGit.ps1
+├── Uninstall-TortoiseGit.ps1
+└── Detect-TortoiseGit.ps1
+
+**IntuneWin Packaging Command**
+
+Install:
+powershell.exe -ExecutionPolicy Bypass -File Install-TortoiseGit.ps1
+
+Uninstall:
+powershell.exe -ExecutionPolicy Bypass -File Uninstall-TortoiseGit.ps1
+
+
+**Program Settings**
+
+Install:
+powershell.exe -ExecutionPolicy Bypass -File Install-TortoiseGit.ps1
+
+Uninstall:
+powershell.exe -ExecutionPolicy Bypass -File Uninstall-TortoiseGit.ps1
+
+
+**Detection Rules**
+
+Use custom script:
+Detect-TortoiseGit.ps1
+
+
+

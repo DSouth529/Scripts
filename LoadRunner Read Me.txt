@@ -1,0 +1,30 @@
+**Source Folder Structure**
+
+LoadRunner-Win32App/
+- Install.ps1
+- Uninstall.ps1
+- Detection.ps1
+- LoadRunner_Professional_Client_Components.exe
+
+**IntuneWin Packaging Command**
+
+IntuneWinAppUtil.exe -c C:\Source\LoadRunner-Win32App -s Install.ps1 -o C:\Output
+
+
+**Program Settings**
+
+Install:
+powershell.exe -ExecutionPolicy Bypass -File .\Install.ps1
+
+Uninstall:
+powershell.exe -ExecutionPolicy Bypass -File .\Uninstall.ps1
+
+
+**Detection Rules**
+
+Upload Detection.ps1 as a custom detection script. Run as 64-bit: Yes Signature check: No
+
+
+**Notes**
+
+Logs write to C:\ProgramData\Company\Logs\LoadRunner Keep all files together before packaging.
