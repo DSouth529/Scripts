@@ -2,6 +2,7 @@
 # Kurzweil Detection Script
 # ==================================================
 
+#Required Variables
 $AppName = "Kurzweil"
 $InstallPath = "C:\Program Files\Kurzweil"
 $RegistryPath = "HKLM:\Software\Kurzweil"
