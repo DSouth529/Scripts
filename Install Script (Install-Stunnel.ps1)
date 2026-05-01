@@ -1,0 +1,45 @@
+#====================================================
+# Install Script for Stunnel
+# Version: 1.0.0
+#====================================================
+
+#Required Variables
+$AppName = "Stunnel"
+$SourceApp = "stunnel.msi"
+$InstallerType = "MSI"
+$ArgumentList = "/i stunnel.msi /qn /norestart"
+$ScriptVersion = "1.0.0"
+
+$LogFile = "$PSScriptRoot\Logs\Install.log"
+$InstallerPath = "$PSScriptRoot\Source\$SourceApp"
+
+function Write-Log {
+    param($Message, $Severity="INFO", $LogFile)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Add-Content -Path $LogFile -Value "$timestamp [$Severity] $Message"
+}
+
+Write-Log "Starting install script version $ScriptVersion" "INFO" $LogFile
+Write-Log "Installer path: $InstallerPath" "INFO" $LogFile
+Write-Log "Installer type: $InstallerType" "INFO" $LogFile
+
+try {
+    $process = Start-Process "msiexec.exe" -ArgumentList $ArgumentList -Wait -PassThru -WindowStyle Hidden
+    $exitCode = $process.ExitCode
+
+    Write-Log "Installer exit code: $exitCode" "INFO" $LogFile
+
+    if ($exitCode -eq 0) {
+        Write-Log "Installation completed successfully" "SUCCESS" $LogFile
+    }
+    elseif ($exitCode -eq 3010) {
+        Write-Log "Installation successful but restart required (suppressed)" "WARN" $LogFile
+    }
+    else {
+        Write-Log "Installation failed with exit code $exitCode" "ERROR" $LogFile
+    }
+}
+catch {
+    Write-Log "Exception occurred: $_" "ERROR" $LogFile
+    exit 1
+}
