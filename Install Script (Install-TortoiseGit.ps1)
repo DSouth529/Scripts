@@ -1,8 +1,9 @@
-# TortoiseGit for Windows (64-bit) Application Package Scripts
+#====================================================
+# Install Script for TortoiseGit for Windows (64-bit)
+# Version: 1.0.0
+#====================================================
 
-## Install Script (PowerShell)
-
-```powershell
+#Required Variables
 $ScriptVersion = '1.0.0'
 $AppName = 'TortoiseGit'
 $SourceApp = 'TortoiseGit-64bit.msi'
