@@ -1,0 +1,41 @@
+# ==================================================
+# Detection Script for Stunnel
+# Version 1.0.0
+# ==================================================
+
+
+#Required Variables 
+$AppName = "Stunnel"
+$ScriptVersion = "1.0.0"
+$LogFile = "$PSScriptRoot\Logs\Detect.log"
+
+function Write-Log {
+    param($Message, $Severity="INFO", $LogFile)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Add-Content -Path $LogFile -Value "$timestamp [$Severity] $Message"
+}
+
+Write-Log "Starting detection script version $ScriptVersion" "INFO" $LogFile
+
+try {
+    $paths = @(
+        "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+
+    $app = Get-ItemProperty $paths -ErrorAction SilentlyContinue |
+        Where-Object { $_.DisplayName -like "*Stunnel*" }
+
+    if ($app) {
+        Write-Log "Stunnel detected: $($app.DisplayName)" "SUCCESS" $LogFile
+        exit 0
+    }
+    else {
+        Write-Log "Stunnel not detected" "WARN" $LogFile
+        exit 1
+    }
+}
+catch {
+    Write-Log "Detection error: $_" "ERROR" $LogFile
+    exit 1
+}
