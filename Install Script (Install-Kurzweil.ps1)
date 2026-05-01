@@ -1,0 +1,67 @@
+# ==================================================
+# Install Script for Kurzweil
+# Version 1.0.0
+# ==================================================
+
+$AppName = "Kurzweil"
+$SourceApp = "KurzweilInstaller"
+$InstallerType = "EXE"   # or MSI
+$ArgumentList = "/quiet /norestart"
+$InstallPath = "C:\Program Files\Kurzweil"
+
+$ScriptVersion = "1.0.0"
+$InstallerPath = Join-Path $PSScriptRoot "KurzweilSetup.exe"
+$LogPath = "C:\ProgramData\$AppName\Logs"
+$LogFile = "$LogPath\Install.log"
+
+# Ensure log directory exists
+New-Item -Path $LogPath -ItemType Directory -Force | Out-Null
+
+function Write-Log {
+    param (
+        [string]$Message,
+        [string]$Severity = "INFO"
+    )
+    $Timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    Add-Content -Path $LogFile -Value "$Timestamp [$Severity] $Message"
+}
+
+Write-Log "Starting install script version $ScriptVersion" "INFO"
+Write-Log "Installer path: $InstallerPath" "INFO"
+Write-Log "Run context: $env:USERNAME" "INFO"
+
+try {
+    if (!(Test-Path $InstallerPath)) {
+        Write-Log "Installer not found at path" "ERROR"
+        exit 1
+    }
+
+    $process = Start-Process -FilePath $InstallerPath `
+        -ArgumentList $ArgumentList `
+        -Wait -PassThru
+
+    $exitCode = $process.ExitCode
+    Write-Log "Installer exit code: $exitCode" "INFO"
+
+    if ($exitCode -eq 0) {
+        Write-Log "Installation completed successfully" "SUCCESS"
+    }
+    else {
+        Write-Log "Installation failed with exit code $exitCode" "ERROR"
+    }
+
+    # Post-install checks
+    if (Test-Path $InstallPath) {
+        Write-Log "Install directory exists: $InstallPath" "SUCCESS"
+    }
+    else {
+        Write-Log "Install directory missing after install" "WARN"
+    }
+
+}
+catch {
+    Write-Log "Unhandled error: $_" "ERROR"
+    exit 1
+}
+
+exit $exitCode
