@@ -1,0 +1,22 @@
+
+## 📋 Adobe Acrobat FRL Licensing Deployment Plan
+### Executive Summary
+Following the project review meeting held on Friday, consensus was reached to proceed with the deployment of the Feature Restricted Licensing (FRL) package for Adobe Acrobat 24.5. This deployment applies the Adobe FRL license to endpoints and does not include the base application installation.
+### Deployment Methodology
+It is critical to note that the **Full License package is not a full installer**. It is designed strictly to license systems where Adobe Acrobat is already present.
+ * **Application State:** Acrobat must be pre-installed on the target endpoints.
+ * **Licensing Mechanism:** Leverages the Adobe Licensing Toolkit alongside the associated JSON configuration file.
+ * **Intune Detection Method:** The deployment utilizes the presence of the operating configuration file at C:\ProgramData\Adobe\Operating Configs to confirm successful licensing.
+### Execution Logic
+The deployment script operates under the following sequence:
+ 1. **Pre-execution Check:** Validates that Adobe Acrobat is present on the endpoint.
+ 2. **Cleanup:** Removes any legacy licensing files to prevent configuration conflicts.
+ 3. **Configuration Verification:** Checks for the required file under C:\ProgramData\Adobe\Operating Configs.
+ 4. **Conditional Logic:**
+   * **If the file is missing:** Executes the Adobe Licensing Toolkit to apply the FRL license using the JSON configuration.
+   * **If the file is present:** Terminates the script with no action taken.
+### Next Steps
+ * **Intune Packaging:** Prepare the source files containing the licensing toolkit and the deployment script.
+ * **Targeting and Prerequisite Rules:** Ensure application dependencies or Intune targeting rules account for pre-existing Acrobat installations.
+ * **Pilot Deployment:** Push to a controlled pilot group to validate the detection method and ensure no degradation of existing application binaries.
+Would you like to draft the corresponding PowerShell deployment script or Intune configuration policy based on this methodology?
